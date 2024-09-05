@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 30px;
+}
+
+input {
+  padding: 10px;
+  margin: 15px;
+  border: 1px solid #2b1a3c;
+  border-radius: 15px;
+  width: 300px;
+}
+
+input:focus {
+  outline: none;
+}
+
+button {
+  padding: 10px;
+  width: 100px;
+  border-radius: 10px;
+  border: none;
+}
+
+button:hover {
+  transform: tr;
+}
+
+.result {
+  margin: 10px;
+  font-size: 1.2em;
+}
