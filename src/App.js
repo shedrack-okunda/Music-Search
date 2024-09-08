@@ -1,4 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { Box, Button, Grid2, Link } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography/Typography";
+import "@fontsource/roboto";
+import {
+  createTheme,
+  ThemeProvider,
+  responsiveFontSizes,
+} from "@mui/material/styles";
 import "./App.css";
 
 const App = () => {
@@ -9,13 +18,15 @@ const App = () => {
   );
 };
 
+let theme = createTheme();
+theme = responsiveFontSizes(theme);
+
 const MusicSearch = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   // const [token, setToken] = useState();
 
   const updateToken = async () => {
-    console.log("running");
     try {
       const res = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
@@ -29,11 +40,9 @@ const MusicSearch = () => {
         }).toString(),
       });
       const data = await res.json();
-      // console.log(data);
-      // console.log(data.access_token);
       localStorage.setItem("token", data.access_token);
     } catch (error) {
-      console(error);
+      console.error(error);
     }
   };
 
@@ -60,34 +69,63 @@ const MusicSearch = () => {
 
       const data = await res.json();
       setResults(data.tracks.items);
-      // console.log(data.tracks.items);
     } catch (error) {
       console.error("Error fetching data from Spotify API", error);
     }
   };
 
   return (
-    <div className="container">
-      <h1>Music Search</h1>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search for a Song"
-      />
-      <button type="button" onClick={searchMusic}>
-        Search
-      </button>
-      <div className="result">
-        {results.map((item) => (
-          <div key={item.id}>
-            <p>
-              {item.name} by {item.artists[0].name}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#76ff03",
+        borderRadius: "10px",
+      }}
+    >
+      <ThemeProvider theme={theme}>
+        <Typography variant="h1" fontSize="4rem">
+          Music Search
+        </Typography>
+        <TextField
+          sx={{ m: 1, width: 300, input: { color: "purple" } }}
+          type="text"
+          value={query}
+          variant="filled"
+          onChange={(e) => setQuery(e.target.value)}
+          label="Search for a Song"
+          size="small"
+        />
+
+        <Button
+          sx={{ m: 1 }}
+          variant="contained"
+          color="secondary"
+          type="button"
+          size="large"
+          onClick={searchMusic}
+        >
+          Search
+        </Button>
+        <Grid2 sx={{ m: "20px", marginLeft: "5%" }} container spacing={2}>
+          {results.map((item) => (
+            <Grid2 size={{ xs: 8, md: 6 }} spacing={4} item key={item.id}>
+              <Typography className="text" variant="body1">
+                <Link
+                  href="https://www.spotify.com"
+                  color="#000"
+                  underline="none"
+                >
+                  {item.name} by {item.artists[0].name}
+                </Link>
+              </Typography>
+            </Grid2>
+          ))}
+        </Grid2>
+      </ThemeProvider>
+    </Box>
   );
 };
 
