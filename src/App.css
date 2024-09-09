@@ -1,6 +1,6 @@
 .text:nth-child(odd) {
   background-color: #4d4d;
-  padding: 10px;
+  padding: 5px;
   border-radius: 5px;
   color: black;
 }
