@@ -19,6 +19,7 @@ import {
   responsiveFontSizes,
 } from "@mui/material/styles";
 import "./App.css";
+import { Search, SortByAlpha } from "@mui/icons-material";
 
 const App = () => {
   return (
@@ -134,18 +135,27 @@ const MusicSearch = () => {
         alignItems: "center",
         backgroundColor: "#76ff03",
         borderRadius: "10px",
-        padding: 2,
+        p: 3,
         boxShadow: 3,
+        margin: "auto",
       }}
     >
       <ThemeProvider theme={theme}>
-        <Typography variant="h1" fontSize="4rem">
+        <Typography
+          variant="h1"
+          sx={{
+            fontsize: { xs: "0.3rem", sm: "1.3rem", md: "3rem" },
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
           Music Search
         </Typography>
 
         <Box>
           <TextField
-            sx={{ m: 1, width: 250, input: { color: "purple" } }}
+            sx={{ m: 1, width: 200, input: { color: "white" } }}
             type="text"
             value={query}
             variant="filled"
@@ -156,10 +166,11 @@ const MusicSearch = () => {
           <Button
             sx={{ m: 1 }}
             variant="contained"
-            color="secondary"
+            color="success"
             type="button"
             size="large"
             onClick={searchMusic}
+            endIcon={<Search />}
           >
             Search
           </Button>
@@ -167,17 +178,18 @@ const MusicSearch = () => {
           <Button
             type="button"
             variant="contained"
-            color="secondary"
+            color="success"
             size="large"
             onClick={() => handleSortChange("name")}
+            endIcon={<SortByAlpha />}
           >
-            Sort Music
+            Sort
           </Button>
         </Box>
 
-        <Grid2 sx={{ m: "20px", marginLeft: "5%" }} container spacing={2}>
+        <Grid2 sx={{ m: "20px" }} container spacing={2}>
           {results.map((item, index) => (
-            <Grid2 size={{ xs: 8, md: 6 }} spacing={4} item key={item.id}>
+            <Grid2 xs={12} sm={8} md={6} lg={10} spacing={4} item key={item.id}>
               <List className="text" variant="body1">
                 <ListItem key={index}>
                   <img
