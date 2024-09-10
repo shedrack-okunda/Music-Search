@@ -133,7 +133,7 @@ const MusicSearch = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#76ff03",
+        backgroundColor: "darkgray",
         borderRadius: "10px",
         p: 3,
         boxShadow: 3,
@@ -148,6 +148,7 @@ const MusicSearch = () => {
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
+            color: "white",
           }}
         >
           Music Search
@@ -155,13 +156,14 @@ const MusicSearch = () => {
 
         <Box>
           <TextField
-            sx={{ m: 1, width: 200, input: { color: "white" } }}
+            sx={{ m: 1, width: 200, input: { color: "lightgray" } }}
             type="text"
             value={query}
             variant="filled"
             onChange={(e) => setQuery(e.target.value)}
             label="Search for a Song"
             size="small"
+            color="lightgray"
           />
           <Button
             sx={{ m: 1 }}
@@ -201,16 +203,16 @@ const MusicSearch = () => {
                   />
                   <Link
                     href={item.external_urls.spotify}
-                    color="textPrimary"
+                    color="white"
                     underline="none"
                   >
                     {item.name} by {item.artists[0].name}
                   </Link>
                   <IconButton onClick={() => handlePlayPause(item)}>
                     {selectedTrack?.id === item.id && isPlaying ? (
-                      <PauseIcon />
+                      <PauseIcon color="success" />
                     ) : (
-                      <PlayArrowIcon />
+                      <PlayArrowIcon color="success" />
                     )}
                   </IconButton>
                 </ListItem>
