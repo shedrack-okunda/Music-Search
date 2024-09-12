@@ -1,25 +1,35 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
+  AppBar,
   Box,
   Button,
-  Grid2,
+  CssBaseline,
+  Divider,
+  Drawer,
   IconButton,
-  Link,
   List,
-  ListItem,
+  ListItemButton,
+  ListItemText,
+  Toolbar,
+  Typography,
+  Grid2,
+  Link,
 } from "@mui/material";
+import { ListItem } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
-import Typography from "@mui/material/Typography/Typography";
+
 import "@fontsource/roboto";
 import {
   createTheme,
   ThemeProvider,
   responsiveFontSizes,
 } from "@mui/material/styles";
+import MenuIcon from "@mui/icons-material/Menu";
 import "./App.css";
-import { Search, SortByAlpha } from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 
 const App = () => {
   return (
@@ -29,39 +39,42 @@ const App = () => {
   );
 };
 
+const drawerWidth = 240;
+const navItems = ["Artists", "Tracks", "Albums"];
+
 let theme = createTheme();
 theme = responsiveFontSizes(theme);
 
-const MusicSearch = () => {
+function MusicSearch(props) {
+  const { window } = props;
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-  const [sortCriterion, setSortCriterion] = useState("name");
   const [selectedTrack, setSelectedTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
-  // const [token, setToken] = useState();
-
-  const updateToken = async () => {
-    try {
-      const res = await fetch("https://accounts.spotify.com/api/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          grant_type: "client_credentials",
-          client_id: "6d564beea1cf4c3da710207d7ef04b6a",
-          client_secret: "8a7cdc03dd404cf9a773cd7ea54a7f1e",
-        }).toString(),
-      });
-      const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const res = await fetch("https://accounts.spotify.com/api/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
+          }).toString(),
+        });
+        const data = await res.json();
+        localStorage.setItem("token", data.access_token);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     updateToken();
   }, []);
 
@@ -74,7 +87,6 @@ const MusicSearch = () => {
         `https://api.spotify.com/v1/search?q=${query}&type=track,artist,album`,
         {
           method: "GET",
-          body: JSON.stringify(),
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -90,20 +102,6 @@ const MusicSearch = () => {
     } catch (error) {
       console.error("Error fetching data from Spotify API", error);
     }
-  };
-
-  const sortMusic = (criterion) => {
-    const sortedMusic = [...results].sort((a, b) => {
-      if (a[criterion] < b[criterion]) return -1;
-      if (a[criterion] > b[criterion]) return 1;
-      return 0;
-    });
-    setResults(sortedMusic);
-  };
-
-  const handleSortChange = (criterion) => {
-    setSortCriterion(criterion);
-    sortMusic(criterion);
   };
 
   const handlePlayPause = (track) => {
@@ -126,103 +124,179 @@ const MusicSearch = () => {
     }
   };
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "darkgray",
-        borderRadius: "10px",
-        p: 3,
-        boxShadow: 3,
-        margin: "auto",
-      }}
-    >
-      <ThemeProvider theme={theme}>
-        <Typography
-          variant="h1"
-          sx={{
-            fontsize: { xs: "0.3rem", sm: "1.3rem", md: "3rem" },
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            color: "white",
-          }}
-        >
-          Music Search
-        </Typography>
+  const handleDrawerToggle = () => {
+    setMobileOpen((prevState) => !prevState);
+  };
 
-        <Box>
-          <TextField
-            sx={{ m: 1, width: 200, input: { color: "lightgray" } }}
-            type="text"
-            value={query}
-            variant="filled"
-            onChange={(e) => setQuery(e.target.value)}
-            label="Search for a Song"
-            size="small"
-            color="lightgray"
-          />
-          <Button
-            sx={{ m: 1 }}
-            variant="contained"
-            color="success"
-            type="button"
-            size="large"
-            onClick={searchMusic}
-            endIcon={<Search />}
-          >
-            Search
-          </Button>
-
-          <Button
-            type="button"
-            variant="contained"
-            color="success"
-            size="large"
-            onClick={() => handleSortChange("name")}
-            endIcon={<SortByAlpha />}
-          >
-            Sort
-          </Button>
-        </Box>
-
-        <Grid2 sx={{ m: "20px" }} container spacing={2}>
-          {results.map((item, index) => (
-            <Grid2 xs={12} sm={8} md={6} lg={10} spacing={4} item key={item.id}>
-              <List className="text" variant="body1">
-                <ListItem key={index}>
-                  <img
-                    src={item.album.images[0]?.url}
-                    alt={item.name}
-                    width="50"
-                    style={{ margin: "5px", borderRadius: "5px" }}
-                    loading="lazy"
-                  />
-                  <Link
-                    href={item.external_urls.spotify}
-                    color="white"
-                    underline="none"
-                  >
-                    {item.name} by {item.artists[0].name}
-                  </Link>
-                  <IconButton onClick={() => handlePlayPause(item)}>
-                    {selectedTrack?.id === item.id && isPlaying ? (
-                      <PauseIcon color="success" />
-                    ) : (
-                      <PlayArrowIcon color="success" />
-                    )}
-                  </IconButton>
-                </ListItem>
-              </List>
-            </Grid2>
-          ))}
-        </Grid2>
-      </ThemeProvider>
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
+      <Typography variant="h6" sx={{ my: 2 }}>
+        Music
+      </Typography>
+      <Divider />
+      <List>
+        {navItems.map((item) => (
+          <ListItem key={item} disablePadding>
+            <ListItemButton sx={{ textAlign: "center" }}>
+              <ListItemText primary={item} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
     </Box>
   );
+
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar component="nav">
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
+          >
+            Music Search
+          </Typography>
+
+          <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
+            {navItems.map((item) => (
+              <Button key={item} sx={{ color: "#fff" }}>
+                {item}
+              </Button>
+            ))}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TextField
+              sx={{
+                m: 1,
+                width: { xs: "130px", sm: "300px" },
+                input: {
+                  color: "lightgray",
+                },
+                label: {
+                  color: "lightgray",
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#888",
+                    },
+                    "&:hover fieldset": { borderColor: "#aaa" },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#00aaff",
+                    },
+                  },
+                },
+              }}
+              type="text"
+              variant="filled"
+              label="Search..."
+              size="small"
+              color="lightgray"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <Button
+              sx={{ m: 1 }}
+              variant="contained"
+              color="success"
+              type="button"
+              size="large"
+              onClick={searchMusic}
+              startIcon={<Search />}
+            >
+              Search
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      <nav>
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </nav>
+
+      <Box component="main" sx={{ p: 3 }}>
+        <Toolbar />
+        <ThemeProvider theme={theme}>
+          <Grid2 sx={{ m: "20px" }} container spacing={2}>
+            {results.map((item, index) => (
+              <Grid2
+                xs={12}
+                sm={8}
+                md={6}
+                lg={10}
+                spacing={4}
+                item
+                key={item.id}
+              >
+                <List className="text" variant="body1">
+                  <ListItem key={index}>
+                    <img
+                      src={item.album.images[0]?.url}
+                      alt={item.name}
+                      width="50"
+                      style={{ margin: "5px", borderRadius: "5px" }}
+                      loading="lazy"
+                    />
+                    <Link
+                      href={item.external_urls.spotify}
+                      color="white"
+                      underline="none"
+                    >
+                      {item.name} by {item.artists[0].name}
+                    </Link>
+                    <IconButton onClick={() => handlePlayPause(item)}>
+                      {selectedTrack?.id === item.id && isPlaying ? (
+                        <PauseIcon color="success" />
+                      ) : (
+                        <PlayArrowIcon color="success" />
+                      )}
+                    </IconButton>
+                  </ListItem>
+                </List>
+              </Grid2>
+            ))}
+          </Grid2>
+        </ThemeProvider>
+      </Box>
+    </Box>
+  );
+}
+
+MusicSearch.propTypes = {
+  window: PropTypes.func,
 };
 
 export default App;
